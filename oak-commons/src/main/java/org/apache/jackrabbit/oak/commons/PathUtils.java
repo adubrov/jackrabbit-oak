@@ -380,6 +380,21 @@ public final class PathUtils {
         return path.startsWith(ancestor);
     }
 
+    public static boolean isChild(String child, String path) {
+        assert isValid(child) : "Invalid parent path ["+child+"]";
+        assert isValid(path) : "Invalid path ["+path+"]";
+        if (child.isEmpty() || path.isEmpty()) {
+            return false;
+        }
+
+        if (denotesRoot(child)) {
+            return false;
+        }
+
+        String parent = getAncestorPath(child, 1);
+        return path.equals(parent);
+    }
+
     /**
      * Relativize a path wrt. a parent path such that
      * {@code relativize(parentPath, concat(parentPath, path)) == paths}

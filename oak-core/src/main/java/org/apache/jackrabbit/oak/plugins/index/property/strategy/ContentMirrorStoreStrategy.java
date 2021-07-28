@@ -344,6 +344,7 @@ public class ContentMirrorStoreStrategy implements IndexStoreStrategy {
         private int intermediateNodeReadCount;
         private boolean init;
         private boolean closed;
+        private boolean isDirectChildren;
         private String filterPath;
         private String pathPrefix;
         private String parentPath;
@@ -361,7 +362,9 @@ public class ContentMirrorStoreStrategy implements IndexStoreStrategy {
             this.filter = filter;
             this.pathPrefix = pathPrefix;
             this.indexName = indexName;
-            boolean shouldDescendDirectly = filter.getPathRestriction().equals(Filter.PathRestriction.ALL_CHILDREN);
+            this.isDirectChildren = filter.getPathRestriction().equals(Filter.PathRestriction.DIRECT_CHILDREN);
+            boolean shouldDescendDirectly = filter.getPathRestriction().equals(Filter.PathRestriction.ALL_CHILDREN) ||
+              isDirectChildren;
             if (shouldDescendDirectly) {            
                 filterPath = filter.getPath();
                 if (PathUtils.denotesRoot(filterPath)) {
@@ -444,7 +447,8 @@ public class ContentMirrorStoreStrategy implements IndexStoreStrategy {
                         if (!"".equals(p) && 
                                 !p.equals(filterPath) && 
                                 !PathUtils.isAncestor(p, filterPath) && 
-                                !PathUtils.isAncestor(filterPath, p)) {
+                                !(!isDirectChildren && PathUtils.isAncestor(filterPath, p)) &&
+                                !(isDirectChildren && PathUtils.isChild(p, filterPath))) {
                             continue;
                         }
                     }
