@@ -367,7 +367,7 @@ public class ContentMirrorStoreStrategy implements IndexStoreStrategy {
               isDirectChildren;
             if (shouldDescendDirectly) {            
                 filterPath = filter.getPath();
-                if (PathUtils.denotesRoot(filterPath)) {
+                if (PathUtils.denotesRoot(filterPath) && !isDirectChildren) {
                     filterPath = "";
                 }
             } else {
@@ -444,11 +444,11 @@ public class ContentMirrorStoreStrategy implements IndexStoreStrategy {
                         } else {
                             p = PathUtils.concat(pathPrefix, p);
                         }
+                        boolean isRelative = isDirectChildren ? PathUtils.isChild(p, filterPath) : PathUtils.isAncestor(filterPath, p);
                         if (!"".equals(p) && 
                                 !p.equals(filterPath) && 
-                                !PathUtils.isAncestor(p, filterPath) && 
-                                !(!isDirectChildren && PathUtils.isAncestor(filterPath, p)) &&
-                                !(isDirectChildren && PathUtils.isChild(p, filterPath))) {
+                                !PathUtils.isAncestor(p, filterPath) &&
+                                !isRelative) {
                             continue;
                         }
                     }
